@@ -1,5 +1,7 @@
 package ba.ekapic1.stonebase;
+
 import ba.ekapic1.stonebase.filter.FilterBuilder;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -18,5 +20,27 @@ public interface BaseRepository<M, ID> extends JpaRepository<M, ID>, JpaSpecific
      */
     default FilterBuilder<M> filterBuilder() {
         return FilterBuilder.simple();
+    }
+
+    /**
+     * <p>
+     * Convenience method to be used when we are sure our entity will be found in the database.
+     * Will throw exceptions if said entity is not found.
+     * </p>
+     * If unsure of existence, use {@link JpaRepository}'s <code>findOne</code> method which is also exposed through this repository.
+     */
+    default M get(final ID modelId) {
+        return findById(modelId).orElseThrow();
+    }
+
+    /**
+     * <p>
+     * Convenience method to be used when we are sure our entity will be found in the database.
+     * Will throw exceptions if said entity is not found.
+     * </p>
+     * If unsure of existence, use {@link JpaRepository}'s <code>findOne</code> method which is also exposed through this repository.
+     */
+    default M get(final Specification<M> specification) {
+        return findOne(specification).orElseThrow();
     }
 }
