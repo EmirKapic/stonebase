@@ -2,7 +2,6 @@ package ba.ekapic1.stonebase.filter;
 
 import ba.ekapic1.stonebase.model.Field;
 
-// TODO: CompositeOrders
 public class Order<T> {
     private final Field field;
     private final boolean asc;
