@@ -1,5 +1,6 @@
 package ba.ekapic1.stonebase.filter;
 
+import ba.ekapic1.stonebase.model.Field;
 import org.springframework.data.jpa.domain.Specification;
 
 public interface FilterBuilder<T> extends FilterBuilderComponent<FilterBuilder<T>>{
@@ -15,6 +16,20 @@ public interface FilterBuilder<T> extends FilterBuilderComponent<FilterBuilder<T
      */
     default FilterBuilder<T> with(final FilterBuilderCustomizer<T> customizer) {
         return customizer.apply(this);
+    }
+
+    FilterBuilder<T> with(final Order<T> order);
+
+    default FilterBuilder<T> withOrder(final Field field, final boolean asc) {
+        return with(Order.of(field, asc));
+    }
+
+    default FilterBuilder<T> withOrderAsc(final Field field) {
+        return with(Order.asc(field));
+    }
+
+    default FilterBuilder<T> withOrderDesc(final Field field) {
+        return with(Order.desc(field));
     }
 
     Specification<T> build();

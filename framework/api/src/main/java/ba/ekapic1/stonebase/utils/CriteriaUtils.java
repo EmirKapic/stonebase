@@ -2,8 +2,10 @@ package ba.ekapic1.stonebase.utils;
 
 import ba.ekapic1.stonebase.filter.Condition;
 import ba.ekapic1.stonebase.filter.ConditionType;
+import ba.ekapic1.stonebase.filter.Order;
 import ba.ekapic1.stonebase.model.Field;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
@@ -17,15 +19,17 @@ import java.util.Objects;
 @SuppressWarnings("unchecked")
 public class CriteriaUtils<T> {
     private final Root<T> root;
+    private final CriteriaQuery<T> query;
     private final CriteriaBuilder criteriaBuilder;
 
-    private CriteriaUtils(final Root<T> root, final CriteriaBuilder criteriaBuilder) {
+    CriteriaUtils(final Root<T> root, final CriteriaQuery<T> query, final CriteriaBuilder criteriaBuilder) {
         this.root = root;
+        this.query = query;
         this.criteriaBuilder = criteriaBuilder;
     }
 
-    public static <T> CriteriaUtils<T> of(final Root<T> root, final CriteriaBuilder criteriaBuilder) {
-        return new CriteriaUtils<>(root, criteriaBuilder);
+    public static <T> CriteriaUtils<T> of(final Root<T> root, final CriteriaQuery<T> query ,final CriteriaBuilder criteriaBuilder) {
+        return new CriteriaUtils<>(root, query, criteriaBuilder);
     }
 
     public Predicate createPredicate(final Condition condition) {
@@ -114,6 +118,19 @@ public class CriteriaUtils<T> {
         return Arrays.stream(conditions)
                 .map(this::createPredicate)
                 .toArray(Predicate[]::new);
+    }
+
+    public Predicate createOrderPredicate(final Order<T> order) {
+        final jakarta.persistence.criteria.Order criteriaOrder;
+        if (order.isAsc()) {
+            criteriaOrder = criteriaBuilder.asc(fieldPath(root, order.field()));
+        } else {
+            criteriaOrder = criteriaBuilder.desc(fieldPath(root, order.field()));
+        }
+
+        query.orderBy(criteriaOrder);
+
+        return criteriaBuilder.and();
     }
 
     private Path<T> fieldPath(final Root<T> root, final Field field) {

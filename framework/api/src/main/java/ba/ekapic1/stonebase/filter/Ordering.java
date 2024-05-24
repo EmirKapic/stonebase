@@ -8,12 +8,11 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 
+public class Ordering<T> implements Specification<T> {
+    private final Order<T> order;
 
-public class Filter<T> implements Specification<T> {
-    private final Condition condition;
-
-    public Filter(final Condition condition) {
-        this.condition = condition;
+    public Ordering(final Order<T> order) {
+        this.order = order;
     }
 
     @Override
@@ -22,6 +21,6 @@ public class Filter<T> implements Specification<T> {
                                  @NonNull final CriteriaBuilder criteriaBuilder) {
         final CriteriaUtils<T> utils = CriteriaUtils.of(root, (CriteriaQuery<T>) query, criteriaBuilder);
 
-        return utils.createPredicate(this.condition);
+        return utils.createOrderPredicate(order);
     }
 }

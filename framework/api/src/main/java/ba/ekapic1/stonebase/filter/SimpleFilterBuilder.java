@@ -8,9 +8,11 @@ import java.util.List;
 
 public class SimpleFilterBuilder<T> implements FilterBuilder<T> {
     private final List<Filter<T>> filters;
+    private final List<Ordering<T>> orders;
 
     SimpleFilterBuilder() {
         this.filters = new ArrayList<>();
+        this.orders = new ArrayList<>();
     }
 
     @Override
@@ -21,7 +23,14 @@ public class SimpleFilterBuilder<T> implements FilterBuilder<T> {
 
 
     @Override
+    public FilterBuilder<T> with(final Order<T> order) {
+        this.orders.add(new Ordering<>(order));
+        return this;
+    }
+
+    @Override
     public Specification<T> build() {
+        // TODO: What if only sorted, and no filter?
         if (filters.isEmpty()) {
             return Specification.where(null);
         }
@@ -30,6 +39,15 @@ public class SimpleFilterBuilder<T> implements FilterBuilder<T> {
 
         for (int i = 1; i < filters.size(); i++) {
             finalSpec = Specification.where(finalSpec).and(filters.get(i));
+        }
+
+        if (orders.isEmpty()) {
+            return finalSpec;
+        }
+
+        for (final Ordering<T> order : orders) {
+            finalSpec = Specification.where(finalSpec)
+                    .and(order);
         }
 
         return finalSpec;
